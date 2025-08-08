@@ -4,7 +4,7 @@ import Input from './input'
 function Todo() {
  const [listValue,setListValue]=useState<string>('')
  const [list,setList]=useState<string[]>([])
- const [edit,setEdit]=useState<string>('')
+ const [editIndex,setEditIndex]=useState<number|null>(null)
 
  const handleChange=(e:React.ChangeEvent<HTMLInputElement>)=>{
 
@@ -15,8 +15,16 @@ function Todo() {
 
  const handleSubmit=(e:React.FormEvent )=>{
    e.preventDefault();
-    if(listValue.trim()!==''){
-        setList(prev=>{
+    if(listValue.trim()==='')return;
+    
+    if(editIndex!==null){
+        const updatedList=[...list]
+        updatedList[editIndex]=listValue
+        setList(updatedList)
+        setEditIndex(null)
+        setListValue('')
+    }else if(editIndex===null){
+         setList(prev=>{
             const updated=[...prev,listValue]
             console.log(updated)
             return updated
@@ -29,6 +37,12 @@ function Todo() {
     const handleDelete=(index:number)=>{
         setList(list.filter((_,i)=>i!==index))
     }
+
+    const handleEdit=(index:number)=>{
+        setEditIndex(index)
+        setListValue(list[index])
+    }
+
   return (
     <div>
       <form onSubmit={handleSubmit}>
@@ -36,7 +50,10 @@ function Todo() {
         <button type='submit' >Add</button>
       </form>
       <div>
-        {list.map((v,index)=><p key={index}>{v} <button onClick={()=>handleDelete(index)}>Delete</button></p>)}
+        {list.map((v,index)=><p key={index}>{v} 
+            <button onClick={()=>handleEdit(index)}>Edit</button>
+            <button onClick={()=>handleDelete(index)}>Delete</button>
+            </p>)}
       </div>
     </div>
   )
